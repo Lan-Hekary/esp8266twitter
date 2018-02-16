@@ -34,6 +34,24 @@ boolean esp8266Twitter::tweet(const char* message, uint32_t timestamp, uint32_t 
   this->value_timestamp  = timestamp;
   this->value_nonce      = nonce;
   this->value_status     = message;
+  this->reply_id = nullptr;
+
+  String para_string     = make_para_string();
+  String base_string     = make_base_string(para_string);
+  String oauth_signature = make_signature(base_string);
+  String OAuth_header    = make_OAuth_header(oauth_signature);
+  rtn                    = do_http_text_post(OAuth_header);
+
+  return rtn;
+}
+boolean esp8266Twitter::reply(const char* message,const char* reply_id, uint32_t timestamp, uint32_t nonce) 
+{
+  bool rtn = false;
+
+  this->value_timestamp  = timestamp;
+  this->value_nonce      = nonce;
+  this->value_status     = message;
+  this->reply_id = reply_id;
 
   String para_string     = make_para_string();
   String base_string     = make_base_string(para_string);
@@ -128,6 +146,11 @@ bool esp8266Twitter::do_http_text_post(String OAuth_header)
 
   req_body_to_post = "status=";
   req_body_to_post += String(URLEncode(this->value_status));
+  if(reply_id){
+    req_body_to_post += "&auto_populate_reply_metadata=true";
+    req_body_to_post += "&in_reply_to_status_id=";
+    req_body_to_post += String(this->reply_id);
+  }
 
   HTTPClient http;
   http.begin(BASE_HOST, HTTPSPORT, uri_to_post, api_fingerprint);
@@ -236,6 +259,12 @@ String esp8266Twitter::make_base_string(String para_string)
 String esp8266Twitter::make_para_string() 
 {
   String para_string;
+  if(reply_id){
+    para_string += "auto_populate_reply_metadata=true";
+    para_string += "&in_reply_to_status_id=";
+    para_string += String(this->reply_id);
+    para_string += "&";
+  }
   para_string += KEY_CONSUMER_KEY;
   para_string += "=" ;
   para_string += this->consumerkey;
@@ -263,6 +292,7 @@ String esp8266Twitter::make_para_string()
   para_string += KEY_STATUS;
   para_string += "=";
   para_string += URLEncode(this->value_status);
+
 
   return para_string;
 }

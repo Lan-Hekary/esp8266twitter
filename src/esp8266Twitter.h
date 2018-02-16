@@ -57,6 +57,7 @@ private:
 	uint32_t value_timestamp;
 	uint32_t value_nonce;
 	const char* value_status;
+	const char* reply_id;
 	void ssl_hmac_sha1(const uint8_t *msg, int length, const uint8_t *key, int key_len, uint8_t *digest);
 	String URLEncode(const char* msg);
 	String make_signature(const char* secret_one, const char* secret_two, String base_string);
@@ -70,13 +71,14 @@ private:
 	const char* consumersecret;
 	const char* accesstoken;
 	const char* accessscecret;
-	const char* api_fingerprint    = "AB 60 BB B5 F1 B9 A7 7E BE 68 1B BF 35 3F B3 C2 F9 B4 D2 44";
+	const char* api_fingerprint    = "77 e4 83 a4 6b 9c aa 85 66 dd 10 66 08 be c2 b9 b1 03 be 1f";
 	const char* upload_fingerprint = "48 CD EF 6B F7 F0 D3 8A 3C BD D2 FA E4 0A 29 15 EF 7D 72 1C";
 
 
 public:
 	esp8266Twitter(const char *, const char *, const char *, const char *);
 	boolean tweet(const char* message, uint32_t timestamp, uint32_t nonce);
+	boolean reply(const char* message,const char* reply_id, uint32_t timestamp, uint32_t nonce);
 };
 
 #endif
